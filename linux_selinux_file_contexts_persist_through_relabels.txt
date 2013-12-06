@@ -1,0 +1,11 @@
+semanage fcontext -a -s system_u -t httpd_sys_content_t /www/*
+
+From: 11-ch11.pdf (Page 18) of the RHCE Study Guide
+
+
+File contexts
+Add file-context for everything under /web
+  # semanage fcontext -a -t httpd_sys_content_t "/web(/.*)?"
+  # restorecon -R -v /web
+
+From: semanage man page, examples section

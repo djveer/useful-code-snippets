@@ -1,0 +1,371 @@
+nwc_visa2canned_dps_report_move.sh
+
+#!/sbin/sh
+
+###########################################################################
+
+#                                                                        #
+
+#  THIS SOURCE CODE IS UNPUBLISHED, AND IS THE EXCLUSIVE PROPERTY OF NWC  #
+
+#                                                                        #
+
+###########################################################################
+
+#
+
+#   $Revision:   $
+
+#   $Workfile:   $
+
+#     $Author:   $
+
+#       $Date:   $
+
+#    $Modtime:   $
+
+#
+
+# Description:   This script is used to load Visa VERF files into Oracle database
+
+#
+
+#       Usage:   nwc_visa2canned_dsp_report_move.sh
+
+#Optional Run:   nwc_visa2canned_dsp_report_move.sh
+
+#    Log File:   (Standard log file name)
+
+# Output File:   (Standard output file name)
+
+#
+
+###################### Version-Control-Comment-Area #######################
+
+# $Log:   $
+
+#
+
+###############################################################################
+
+export VC_Revision=$(echo '$ $:0.0$'|cut "-d:" -f2-|cut "-d$" -f1)
+
+ 
+
+arguments="$*"
+
+ 
+
+# set the batch environment
+
+. ~/nwc_setenv.sh
+
+ 
+
+# Initialize Variables
+
+todays_date=$(date +%Y%m%d)
+
+todays_date_time=$(date +%Y%m%d%H%M)
+
+ 
+
+log_file=$DWHLOG/$(basename $0 .sh).log
+
+visa_canned_report_file_list=$DWHTMP/$(basename $0 .sh).visa_canned_report_file_list.ini
+
+ 
+
+HOSTNAME=$(hostname)
+
+ruser=xferadm
+
+rhostname=ghext2.northwest.ca
+
+rpath_in="/srv/ftp/DPS\ Pre-Formatted\ Reports"
+
+ 
+
+rpath_out=/srv/www/html/reports
+
+ 
+
+help()
+
+{
+
+cat << EOF
+
+   Usage is: $0
+
+   This script is used to move Visa CANN report files from Visa FTP server to VISA DSP Report on ghext2
+
+EOF
+
+}
+
+ 
+
+#------------------------------------------------------------------------------
+
+#------------------------------------------------------------------------------
+
+ 
+
+log()
+
+{
+
+    echo $* | tee -a $log_file
+
+}
+
+ 
+
+#------------------------------------------------------------------------------
+
+#------------------------------------------------------------------------------
+
+ 
+
+terminate()
+
+{
+
+    log "------------------------------------------------------------------------------"
+
+    log " $0(V$VC_Revision) $arguments Terminated Abnormally on $(date +%Y-%m-%d) ($(date +%H:%M:%S))"
+
+    log "------------------------------------------------------------------------------"
+
+    exit 1
+
+}
+
+ 
+
+#------------------------------------------------------------------------------
+
+#------------------------------------------------------------------------------
+
+ 
+
+move_canned_report_file()
+
+{
+
+    log " Copying $1 file into $rpath_report report directory on : $(date +%Y/%m/%d) ($(date +%H:%M:%S)) !"
+
+    ssh $ruser@$rhostname "cp -p $rpath_in/$1 $rpath_report"
+
+    RC="$?"
+
+ 
+
+    if [ $RC -ne 0 ] ; then
+
+      log "Error copying $1 file! \n"
+
+      terminate
+
+    fi
+
+ 
+
+    ssh $ruser@$rhostname "rm $rpath_in/$1"
+
+    RC="$?"
+
+ 
+
+    if [ $RC -ne 0 ] ; then
+
+      log "Error removing $1 file! \n"
+
+      terminate
+
+    fi
+
+ 
+
+}
+
+ 
+
+#------------------------------------------------------------------------------
+
+#------------------------------------------------------------------------------
+
+# Main script begins
+
+#------------------------------------------------------------------------------
+
+ 
+
+# Validate the number of arguments passed to the shell script
+
+if [ $# -gt 0 ] ; then
+
+    log "Error: $0(V$VC_Revision)   Bad number of arguments  ($@)"
+
+    help $0
+
+    exit 1
+
+else
+
+    NumParms=$#
+
+fi
+
+ 
+
+# Move previous runs log/output file
+
+if [ -f $log_file ] ; then
+
+    cat $log_file >>$log_file.$(last_modification $log_file).bak
+
+    rm  $log_file
+
+fi
+
+ 
+
+log "---------------------------------------------------------------------------------"
+
+log "$0(V$VC_Revision) $arguments Starting : $(date +%Y-%m-%d) ($(date +%H:%M:%S))"
+
+log "---------------------------------------------------------------------------------\n"
+
+ 
+
+HOSTNAME=$(hostname)
+
+if [ "$HOSTNAME" = "ghdwh" ] ; then
+
+    ENV=prd
+
+else
+
+    ENV=tst
+
+fi
+
+ 
+
+ssh $ruser@$rhostname "cd $rpath_in && ls -1 *" > $visa_canned_report_file_list
+
+ 
+
+RC="$?"
+
+if [ $RC -ne 0 ] ; then
+
+  log "Error Retrieving New Visa Canned Inbound Report Files on $(date +%Y/%m/%d) ($(date +%H:%M:%S)) !"
+
+  terminate
+
+else
+
+  exec 3< $visa_canned_report_file_list
+
+  while read -u3 CANNED_INBOUND_FILE_NAME
+
+  do
+
+    log "Retrieving $CANNED_INBOUND_FILE_NAME file from $rhostname remote host on $(date +%Y/%m/%d) ($(date +%H:%M:%S))\n"
+
+    case $CANNED_INBOUND_FILE_NAME in
+
+      dps????.ppa)
+
+        rpath_report="$rpath_out/Card\ Maintenance\ Daily"
+
+        move_canned_report_file $CANNED_INBOUND_FILE_NAME
+
+      ;;
+
+      dps????.ppm)
+
+        rpath_report="$rpath_out/Card\ Maintenance\ Monthly"
+
+        move_canned_report_file $CANNED_INBOUND_FILE_NAME
+
+      ;;
+
+      dps????.exp)
+
+        rpath_report="$rpath_out/Daily\ Exception"
+
+        move_canned_report_file $CANNED_INBOUND_FILE_NAME
+
+      ;;
+
+      nce????.nce)
+
+        rpath_report="$rpath_out/Card\ Order"
+
+        move_canned_report_file $CANNED_INBOUND_FILE_NAME
+
+      ;;
+
+      dps????.ppc)
+
+        rpath_report="$rpath_out/Daily\ Prepaid"
+
+        move_canned_report_file $CANNED_INBOUND_FILE_NAME
+
+      ;;
+
+      dps????.mpc)
+
+        rpath_report="$rpath_out/Monthly\ Prepaid"
+
+        move_canned_report_file $CANNED_INBOUND_FILE_NAME
+
+      ;;
+
+      dps????.wpc)
+
+        rpath_report="$rpath_out/Weekly\ Prepaid"
+
+        move_canned_report_file $CANNED_INBOUND_FILE_NAME
+
+      ;;
+
+      dps????.idd)
+
+        rpath_report="$rpath_out/Visa\ Daily\ Direct\ Settlement\ \(STVISADS\)"
+
+        move_canned_report_file $CANNED_INBOUND_FILE_NAME
+
+      ;;
+
+      *)
+
+       log " $CANNED_INBOUND_FILE_NAME Visa Canned file does not map to any known report directory."
+
+      ;;
+
+    esac
+
+ 
+
+#  done < $visa_canned_report_file_list
+
+  done
+
+fi
+
+ 
+
+log "----------------------------------------------------------------------------------------"
+
+log " $0(V$VC_Revision) $arguments Completed Successfully $(date +%Y/%m/%d) ($(date +%H:%M:%S))"
+
+log "----------------------------------------------------------------------------------------"
+
+ 
+
+exit $RC

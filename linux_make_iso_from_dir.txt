@@ -1,0 +1,1 @@
+mkisofs -J -allow-leading-dots -R -V "Setup Files" -iso-level 4 -o setupfiles.iso setupfiles/

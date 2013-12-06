@@ -1,0 +1,10 @@
+
+Mount and unmount CIFS and NFS network file systems
+
+Mounting network shares of type NFS and CIFS on Red Hat Enterprise Linux 6 is done with the mount command.
+Mount CIFS share
+
+Mounting samba/windows shares requires the -t cifs option followed by the //server:
+
+mount -t cifs //server/share /mnt --verbose -o user=username
+

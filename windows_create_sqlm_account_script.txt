@@ -1,0 +1,1 @@
+$password = Read-Host "Enter password" -AsSecureString ; New-Mailbox -UserPrincipalName sqlm_wlqdata@northwest.ca -Alias sqlm_wlqdata -Database "Resource Mailboxes" -name sqlm_wlqdata -Password $password -DisplayName "SQLM_wlqdata"

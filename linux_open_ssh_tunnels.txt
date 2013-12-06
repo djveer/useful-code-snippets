@@ -1,0 +1,7 @@
+#!/bin/bash
+
+# 3 August, 2012 -- removed -C option from the 8080 dynamic mapping
+# 5 December, 2013 -- commented out the line for the VNC redirection
+
+ssh -D 8080 -f -q -N djveer@davidveer.com
+#ssh -L 5900:localhost:5900 -f -C -q -N  djveer@davidveer.com

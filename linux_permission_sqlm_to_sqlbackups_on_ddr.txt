@@ -1,0 +1,4 @@
+(servergroup) create directory structure on DDR from ghnb or wlnb (substituting "SQLSERVER" for the name of the server below)
+    cd /mnt/ddbackup/gh/SQLBackups
+    mkdir -p SQLSERVER/{full,diff,log}
+    chown -R tnwc/sqlm_SQLSERVER:tnwc/sqlm_accounts SQLSERVER/

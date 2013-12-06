@@ -1,0 +1,20 @@
+To add a bunch of IP addresses to a network connection
+without having to type each one in individually
+
+Create a batch file like the below:
+
+netsh in ip add address "Local Area Connection" 10.0.0.2 255.0.0.0
+netsh in ip add address "Local Area Connection" 10.0.0.3 255.0.0.0
+netsh in ip add address "Local Area Connection" 10.0.0.4 255.0.0.0
+netsh in ip add address "Local Area Connection" 10.0.0.5 255.0.0.0
+netsh in ip add address "Local Area Connection" 10.0.0.6 255.0.0.0
+[...]
+netsh in ip add address "Local Area Connection" 10.0.0.226 255.0.0.0
+
+ 
+
+or just do a command like
+
+ 
+
+for  /L %a in (1,1,254) do netsh in ip add address "Local Area Connection" 10.0.0.%a 255.255.255.0

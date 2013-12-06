@@ -1,0 +1,27 @@
+#!/bin/bash
+#  Author: David J. Veer (dveer@northwest.ca), July 2013
+#
+#  A simple script to generate hub "puttygen format" private key and corresponding openssh format public key pairs
+#  for the Track & Trace hubs/carriers to use to connect to tnt.northwest.ca
+#
+#  Disclaimer: For internal, IS Server Group use only.
+
+echo "Type the hub username to generate the keys for, then press [ENTER]:"
+read hubname
+
+if [ -z "$hubname" ]; then
+	echo "Hub name cannot be empty, exiting."
+	exit 1
+else
+	# Generate the keys
+	puttygen -t rsa -b 2048 -O private -o "$hubname".ppk
+	puttygen -L "$hubname".ppk > "$hubname".pub
+
+	# Set the permissions on the private key file to be more secure.
+	chmod 600 "$hubname".ppk
+
+	# Report that things are completed.
+	echo "Keypairs have been successfully generated in: " ; pwd
+fi
+
+exit 0

@@ -1,0 +1,7 @@
+# [ns480_vm_sata] prod_sftp/prod_sftp_1.vmdk    (source)
+# [ns480_vm_sata] prod_ghext3/			(source)
+
+Get-HardDisk -VM prod_sftp -Name "Hard disk 2" | 
+Copy-HardDisk -DestinationPath "[ns480_vm_sata] prod_ghext3/" -DestinationStorageFormat Thin -Whatif
+
+

@@ -1,0 +1,1 @@
+for i in $(cat example.txt); do echo $i; done
