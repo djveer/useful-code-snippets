@@ -1,0 +1,110 @@
+$Error.Clear()
+$ErrorActionPreference="SilentlyContinue"
+Clear-Host
+ 
+# Logging
+$BackUpDate=Get-Date -format yyyy-MM-dd
+$DirLogs="${pwd}\Logs"
+$ScriptName=($MyInvocation.MyCommand).Name
+$ScriptName=$ScriptName -replace ".ps1",""
+$LogFile="${DirLogs}\${ScriptName}-${BackUpDate}.log"
+$SkippedDatabases=@("master","model","msdb","tempdb")
+ 
+function LogIt {
+Param ([string]$strFile,[string]$strText,[bool]$blnTime)
+if ($blnTime) {Add-Content -Path $strFile -Value ('[' + (Get-Date -Format G) + '] ' + $strText)} else {Add-Content -Path $strFile -Value $strText}
+}
+ 
+# Check for logs directory. Create if Missing
+if (!(Test-Path $DirLogs)) {New-Item $DirLogs -Type Directory | Out-Null}
+ 
+# Log Header
+LogIt $LogFile "" $false
+LogIt $LogFile "" $false
+LogIt $LogFile "===================================================================================" $false
+LogIt $LogFile ("= Script Full Name: `t" + ($MyInvocation.MyCommand).Name) $false
+LogIt $LogFile ("= Date: `t`t" + (Get-Date -format G)) $false
+LogIt $LogFile ("= Computer Name: `t" + $env:computername) $false
+LogIt $LogFile ("= User Name: `t`t" + $env:username) $false
+LogIt $LogFile "===================================================================================" $false
+LogIt $LogFile "" $false
+ 
+LogIt $LogFile "===========================================================" $true
+LogIt $LogFile ("== BackUp of " + $env:computername + " | STARTING") $true
+LogIt $LogFile "===========================================================" $true
+LogIt $LogFile "" $false
+ 
+# Full + Log Backup of MS SQL Server databases with SMO
+[void][System.Reflection.Assembly]::LoadWithPartialName('Microsoft.SqlServer.ConnectionInfo')
+[void][System.Reflection.Assembly]::LoadWithPartialName('Microsoft.SqlServer.Management.Sdk.Sfc')
+[void][System.Reflection.Assembly]::LoadWithPartialName('Microsoft.SqlServer.SMO')
+# Required for SQL Server 2008 (SMO 10.0).            
+[void][System.Reflection.Assembly]::LoadWithPartialName('Microsoft.SqlServer.SMOExtended')
+ 
+$SQLInstance="(local)"
+$SQLBackupDir="${pwd}\SQL"
+$SQLServer=New-Object Microsoft.SqlServer.Management.Smo.Server $SQLInstance
+ 
+# Check for backup directory. Create if Missing
+if (!(Test-Path $SQLBackupDir)) {New-Item $SQLBackupDir -Type Directory | Out-Null}
+ 
+$SkippedDBCount=$SkippedDatabases.length
+$DBCount=($SQLServer.Databases).count
+$DBTotal=$DBCount - $SkippedDBCount
+$i=1
+ 
+# Full-backup for every non-system database
+ForEach ($db in $SQLServer.Databases)
+{
+    if ($SkippedDatabases -notcontains $db.Name)
+    {
+        Write-Progress -Activity "Backup SQL databases. Please wait..." -Status "Progress ->" -PercentComplete ($i/$DBTotal*100) -CurrentOperation "Currently processing: $db"
+        $i++
+        $timestamp=Get-Date -format yyyy-MM-dd-HH-mm-ss
+        $backup=New-Object ("Microsoft.SqlServer.Management.Smo.Backup")
+        $backup.Action="Database"
+        $backup.Database=$db.Name
+        $backup.Devices.AddDevice($SQLBackupDir + "\" + $db.Name + "_full_" + $timestamp + ".bak", "File")
+        $backup.BackupSetDescription="Full BackUp of " + $db.Name + " " + $timestamp
+        $backup.Incremental=0
+        # Starting full backup process
+        LogIt $LogFile "Full BackUp of $db started" $true
+        $backup.SqlBackup($SQLServer)
+        LogIt $LogFile "Full BackUp of $db completed" $true
+        # For db with recovery mode <> simple: Log backup
+        if ($db.RecoveryModel -ne 3)
+        {
+            $timestamp=Get-Date -format yyyy-MM-dd-HH-mm-ss
+            $backup=New-Object ("Microsoft.SqlServer.Management.Smo.Backup")
+            $backup.Action="Log"
+            $backup.Database=$db.Name
+            $backup.Devices.AddDevice($SQLBackupDir + "\" + $db.Name + "_log_" + $timestamp + ".trn", "File")
+            $backup.BackupSetDescription="Log BackUp of " + $db.Name + " " + $timestamp
+            #Specify that the log must be truncated after the backup is complete
+            $backup.LogTruncation="Truncate"
+            # Starting log backup process
+            LogIt $LogFile "Log BackUp of $db started" $true
+            Try
+                {
+                $backup.SqlBackup($SQLServer)
+                LogIt $LogFile "Log BackUp of $db completed" $true
+                }
+            Catch [system.exception]
+                {
+                LogIt $LogFile ("ERROR - " + $_.Exception) $true
+                LogIt $LogFile "" $false
+                Continue
+                }
+        }
+    }
+}
+ 
+$nbError=$Error.count
+LogIt $LogFile "===========================================================" $true
+LogIt $LogFile ("== BackUp of " + $env:computername + " | COMPLETE") $true
+LogIt $LogFile ("== Error(s): " + $nbError) $true
+LogIt $LogFile "===========================================================" $true
+ 
+if ($nbError -lt 1) {Write-Host "`n${env:computername}: Script completed successfully!`n" -ForegroundColor DarkGreen}
+elseif ($nbError -eq 1) {Write-Host "`n${env:computername}: Script completed with 1 error.`n" -ForegroundColor Yellow}
+else {Write-Host "`n${env:computername}: Script completed with $nbError errors.`n" -ForegroundColor Magenta}
