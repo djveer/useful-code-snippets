@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# $Id: linux_sync_devweb_to_prod.sh 2014-02-04 15:55:46Z isdvee $
+# $Id: linux_sync_devweb_to_prod_northwest_ca.sh 06 Feb 2014 16:05:00 isdvee $
 # 
 ######################################################################
 #                                                                    #
@@ -27,7 +27,7 @@ FAILURE_NOTIFY=dveer@northwest.ca
 #PHONE_NOTIFY=2049358016@page.mts.ca
 
 RSYNC_OUTPUT=/tmp/linux_sync_devweb_to_prod.$$
-
+TIMESTAMP=$(date +%d-%m-%Y-%H-%M-%S)
 # clear a counter so that we know if anything failed
 FAIL=0
 
@@ -38,9 +38,9 @@ echo "Starting rsync process..." >> $RSYNC_OUTPUT 2>&1
 # Starting to run the rsync command. All output is captured into a file at the end.
 
 	# Copy the files 
-	echo /usr/bin/rsync -ruvap --progress /srv/websites/northwest.ca-06-02-2014/ isdvee@devweb2:/srv/northwest.ca/
-	/usr/bin/rsync -ruvap --progress /srv/websites/northwest.ca-06-02-2014/ isdvee@devweb2:/srv/northwest.ca/ >> $RSYNC_OUTPUT 2>&1
-# dest to use when syncing proper direction: /srv/northwest.ca-$(date +%d-%m-%Y-%H-%M-%S)
+	echo /usr/bin/rsync -ruvap --progress --exclude 'content' isdvee@devweb2:/srv/northwest.ca /srv/northwest.ca-$TIMESTAMP >> $RSYNC_OUTPUT 2>&1
+	/usr/bin/rsync -ruvap --progress --exclude 'content' isdvee@devweb2:/srv/northwest.ca /srv/northwest.ca-$TIMESTAMP >> $RSYNC_OUTPUT 2>&1
+	
 	rc=$?
 	echo "rsync returned $rc"
 	if [[ $rc != 0 ]] ; then
