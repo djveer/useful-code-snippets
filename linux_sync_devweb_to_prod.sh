@@ -38,8 +38,9 @@ echo "Starting rsync process..." >> $RSYNC_OUTPUT 2>&1
 # Starting to run the rsync command. All output is captured into a file at the end.
 
 	# Copy the files 
-	echo /usr/bin/rsync -ruvap --progress djveer@198.1.62.19:/srv/northwest.ca/ /srv/websites/northwest.ca-$(date +%d-%m-%Y)
-	/usr/bin/rsync -ruvap --progress djveer@198.1.62.19:/srv/northwest.ca/ /srv/websites/northwest.ca-$(date +%d-%m-%Y) >> $RSYNC_OUTPUT 2>&1
+	echo /usr/bin/rsync -ruvap --progress /srv/websites/northwest.ca-06-02-2014/ /srv/northwest.ca/
+	/usr/bin/rsync -ruvap --progress /srv/websites/northwest.ca-06-02-2014/ /srv/northwest.ca/ >> $RSYNC_OUTPUT 2>&1
+# dest to use when syncing proper direction: /srv/northwest.ca-$(date +%d-%m-%Y-%H-%M-%S)
 	rc=$?
 	echo "rsync returned $rc"
 	if [[ $rc != 0 ]] ; then
