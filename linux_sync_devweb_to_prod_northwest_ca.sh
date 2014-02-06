@@ -38,7 +38,7 @@ echo "Starting rsync process..." >> $RSYNC_OUTPUT 2>&1
 # Starting to run the rsync command. All output is captured into a file at the end.
 
 	# Copy the files 
-	echo /usr/bin/rsync -ruvap --progress --exclude 'content' isdvee@devweb2:/srv/northwest.ca /srv/northwest.ca-$TIMESTAMP >> $RSYNC_OUTPUT 2>&1
+	echo /usr/bin/rsync -ruvap --progress --exclude 'www/htdocs/content' isdvee@devweb2:/srv/northwest.ca /srv/northwest.ca-$TIMESTAMP >> $RSYNC_OUTPUT 2>&1
 	/usr/bin/rsync -ruvap --progress --exclude 'content' isdvee@devweb2:/srv/northwest.ca /srv/northwest.ca-$TIMESTAMP >> $RSYNC_OUTPUT 2>&1
 	
 	rc=$?
