@@ -23,7 +23,6 @@
 # Define who should get e-mailed if the backup fails.
 SUCCESS_NOTIFY=dveer@northwest.ca
 FAILURE_NOTIFY=dveer@northwest.ca
-#FAILURE_NOTIFY=servergroup@northwest.ca,helpdesk@northwest.ca
 #PHONE_NOTIFY=2049358016@page.mts.ca
 
 RSYNC_OUTPUT=/tmp/linux_sync_devweb_to_prod.$$
@@ -38,8 +37,8 @@ echo "Starting rsync process..." >> $RSYNC_OUTPUT 2>&1
 # Starting to run the rsync command. All output is captured into a file at the end.
 
 	# Copy the files 
-	echo /usr/bin/rsync -ruvap --progress --exclude 'content' isdvee@devweb2:/srv/northwest.ca/ /srv/northwest.ca-$TIMESTAMP/ >> $RSYNC_OUTPUT 2>&1
-	/usr/bin/rsync -ruvap --progress --exclude 'content' isdvee@devweb2:/srv/northwest.ca/ /srv/northwest.ca-$TIMESTAMP/ >> $RSYNC_OUTPUT 2>&1
+	echo /usr/bin/rsync -ruvap --exclude 'content' --exclude 'config.inc.php' isdvee@devweb2:/srv/northwest.ca/ /srv/websites/northwest.ca-$TIMESTAMP/ >> $RSYNC_OUTPUT 2>&1
+	/usr/bin/rsync -ruvap --exclude 'content' --exclude 'config.inc.php' isdvee@devweb2:/srv/northwest.ca/ /srv/websites/northwest.ca-$TIMESTAMP/ >> $RSYNC_OUTPUT 2>&1
 	
 	rc=$?
 	echo "rsync returned $rc"
@@ -60,4 +59,3 @@ fi
  
 # Remove output file, clean things up at the end
 #rm $RSYNC_OUTPUT
-
