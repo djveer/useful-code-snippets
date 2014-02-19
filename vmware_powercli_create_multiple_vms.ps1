@@ -2,6 +2,7 @@
 # PowerCLI to create VMs
 # Version 1.0
 # Magnus Andersson RTS
+# Some documentation can be found:  http://vcdx56.com/2014/01/30/create-multiple-vms-using-powercli/
 #
 # Specify vCenter Server, vCenter Server username and vCenter Server user password
 $vCenter=”vc-demo01.vcdx56.com“
