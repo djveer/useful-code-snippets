@@ -1,0 +1,30 @@
+#!/bin/bash
+# 
+# Author: David J. Veer <dveer@northwest.ca>
+# Company:  The North West Company
+#
+# Description:  This simple script uses mysql (prompts for mysql root password) to connect and dump contents 
+# from a table (form_team_diabetes_2014 in this case) and exports it to a csv file and then emails it out to 
+# recipients of your choosing as an attachment.
+
+DBNAME=northwest_ca3
+TABLE=form_team_diabetes_2014
+FNAME=/tmp/$(date +%d.%m.%Y)-$TABLE.csv
+
+#(1)creates empty file and sets up column names using the information_schema
+mysql -u root $DBNAME -B -e "SELECT COLUMN_NAME FROM information_schema.COLUMNS C WHERE table_name = '$TABLE';" -p | awk '{print $1}' | grep -iv ^COLUMN_NAME$ | sed 's/^/"/g;s/$/"/g' | tr '\n' ',' > $FNAME
+
+#(2)appends newline to mark beginning of data vs. column titles
+echo "" >> $FNAME
+
+#(3)dumps data from DB into /var/mysql/tempfile.csv
+mysql -u root $DBNAME -B -e "SELECT * INTO OUTFILE '/tmp/tempfile.csv' FIELDS TERMINATED BY ',' OPTIONALLY ENCLOSED BY '\"' FROM $TABLE;" -p
+
+#(4)merges data file and file w/ column names
+cat /tmp/tempfile.csv >> $FNAME
+
+#(5)deletes tempfile
+rm -rf /tmp/tempfile.csv
+
+#(6)emails csv file to given recipients
+echo "Team Diabetes 2014 entrant database contents for $(date +%d.%m.%Y) is attached." | mailx -s "Team Diabetes 2014 entrant table contents--attached." -a $FNAME dveer@northwest.ca
