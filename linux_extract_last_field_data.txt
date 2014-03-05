@@ -1,0 +1,4 @@
+#!/bin/bash
+# This will extract the last field on a given line, regardless of the number of fields.
+
+head -n1 $filename | rev | cut -f 1 | rev
