@@ -6,6 +6,8 @@
 # Description:  This simple script uses mysql (prompts for mysql root password) to connect and dump contents 
 # from a table (form_team_diabetes_2014 in this case) and exports it to a csv file and then emails it out to 
 # recipients of your choosing as an attachment.
+#
+# Requirements:  Keep in mind that an MTA (and the mailx utility) is required from whatever system this is initated from.
 
 DBNAME=northwest_ca3
 TABLE=form_team_diabetes_2014
@@ -23,8 +25,11 @@ mysql -u root $DBNAME -B -e "SELECT * INTO OUTFILE '/tmp/tempfile.csv' FIELDS TE
 #(4)merges data file and file w/ column names
 cat /tmp/tempfile.csv >> $FNAME
 
-#(5)deletes tempfile
-rm -rf /tmp/tempfile.csv
+#(5)emails csv file to given recipients
+echo "Team Diabetes 2014 entrant database contents for $(date +%d.%m.%Y) is attached." | mailx -s "Team Diabetes 2014 entrant table contents--attached." -r db-admin@nwc-ux3.northwest.ca -a $FNAME dveer@northwest.ca
 
-#(6)emails csv file to given recipients
-echo "Team Diabetes 2014 entrant database contents for $(date +%d.%m.%Y) is attached." | mailx -s "Team Diabetes 2014 entrant table contents--attached." -a $FNAME dveer@northwest.ca
+#(6)deletes the final csv file after emailing successfully.
+rm -f $FNAME
+
+#(7)deletes tempfile
+rm -f /tmp/tempfile.csv
