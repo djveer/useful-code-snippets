@@ -1,0 +1,8 @@
+# To add an AD User to have FullAccess or SendAs permissions to a mailbox:
+
+Add-MailboxPermission -Identity [Destination_mailbox] -User 'ADUser' -AccessRights FullAccess -InheritanceType All -AutoMapping:$true
+
+
+# To remove an AD user's FullAccess or SendAs permissions to a mailbox
+
+Remove-MailboxPermission -Identity [Destination_mailbox] -User 'ADUser' -AccessRights FullAccess -InheritanceType All -AutoMapping:$true
