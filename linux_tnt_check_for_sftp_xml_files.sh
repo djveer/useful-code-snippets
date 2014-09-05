@@ -16,7 +16,7 @@ ACTIVE_HUBS=$(find $SFTP_HOME -name authorized_keys -type f -size +0k | cut -f1 
 # find XML files that have a date older than 15 minutes for the active hubs
 echo ">>> Finding XML files older than $MAX_AGE_MIN minutes..." | $LOGGER
 echo -en '\n' | $LOGGER
-find $ACTIVE_HUBS -name *.xml -type f -amin +$MAX_AGE_MIN | $LOGGER
+find $ACTIVE_HUBS -name *.xml -type f -amin +$MAX_AGE_MIN -not -path "*/OUTBOUND/*" | $LOGGER
 
 # find the number of occurrences in the log file
 FILES=$(grep .xml $LOG | wc -l)
