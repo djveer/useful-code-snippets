@@ -30,7 +30,7 @@ then
 	echo "This message has been auto-generated, do not reply to this email."
 	echo -en '\n' | $LOGGER
 	echo ">>> Alert generated - $RUNDATE on $(hostname)" | $LOGGER
-	cat $LOG | echo mailx -s "Delayed XML files in '\\ghwmsapp2\wmsprd880in\xml_inbound' have been found on $HOSTNAME at $RUNDATE" -r ghwmsapp2@northwest.ca $NOTIFY | $LOGGER
+	cat $LOG | echo mailx -s "Delayed XML files in \\\ghwmsapp2\wmsprd880in\xml_inbound have been found on $HOSTNAME at $RUNDATE" $NOTIFY | $LOGGER
 else
 	echo -en '\n' | $LOGGER
 	echo ">>> No delayed files have been found. Thus, exiting." | $LOGGER
