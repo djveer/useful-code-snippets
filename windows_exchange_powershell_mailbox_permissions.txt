@@ -12,3 +12,15 @@ Remove-MailboxPermission -Identity [Destination_mailbox] -User 'ADUser' -AccessR
 
 Add-MailboxPermission -Identity [Destination_mailbox] -User 'ADUser' -AccessRights FullAccess -InheritanceType All -AutoMapping:$true
 Get-Mailbox [Destination_mailbox] | Add-ADPermission -User 'ADUser' -ExtendedRights Send-As -InheritanceType All
+
+
+
+
+# Here is the more reliable way to do it (tested)
+
+Removing mailbox perms:
+$x = Read-Host "Type the mailbox name"; Remove-MailboxPermission -Identity $x -User 'gtmwar' -AccessRights FullAccess -InheritanceType All -Confirm:$false -Verbose ; Get-Mailbox $x | Remove-ADPermission -User 'gtmwar' -ExtendedRights Send-As -InheritanceType All -Confirm:$false -Verbose
+
+
+Adding mailbox perms:
+$x = Read-Host "Type the mailbox name"; Add-MailboxPermission -Identity $x -User 'crmwa2' -AccessRights FullAccess -InheritanceType All -AutoMapping:$true -Confirm:$false -Verbose ; Get-Mailbox $x | Add-ADPermission -User 'crmwa2' -ExtendedRights Send-As -InheritanceType All -Confirm:$false -Verbose
