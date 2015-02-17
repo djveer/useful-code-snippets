@@ -32,7 +32,6 @@ pure_uploadscript="/usr/sbin/pure-uploadscript -B -r /srv/scripts/uploadscript.s
 start() {
 	echo -n $"Starting $prog: "
 	daemon "$pure_launch_script $pure_config --daemonize > /dev/null"
-	echo -n $"Starting pure-uploadscript: "
 	daemon "$pure_uploadscript --daemonize > /dev/null"
 	RETVAL=$?
 	[ $RETVAL = 0 ] && touch /var/lock/subsys/pure-ftpd
