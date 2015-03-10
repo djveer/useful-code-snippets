@@ -1,0 +1,4 @@
+# Add GUI back to server core 2012 R2 (or optionally remove it by replacing Enable with Disable)
+
+Import-Module Dism
+Enable-WindowsOptionalFeature –online -Featurename ServerCore-FullServer,Server-Gui-Shell,Server-Gui-Mgmt
