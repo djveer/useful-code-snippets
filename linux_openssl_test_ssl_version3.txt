@@ -1,0 +1,2 @@
+# Tests server.domain.tld to see if a connection can be made on sslv3.
+openssl s_client -connect server.domain.tld:443 -ssl3
