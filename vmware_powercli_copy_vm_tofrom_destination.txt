@@ -1,0 +1,4 @@
+PowerCLI C:\> $datastore = Get-Datastore "Templates"
+PowerCLI C:\>
+PowerCLI C:\> New-PSDrive -Location $datastore -Name Templates_DS -PSProvider VimDatastore -Root "\"
+PowerCLI C:\> Copy-DatastoreItem -Item Templates_DS:\prod_pciftps01\ -Destination C:\TEMP\ -Recurse -Verbose
